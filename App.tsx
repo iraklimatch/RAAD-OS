@@ -9,7 +9,7 @@ import ReportCatalog from './components/ReportCatalog';
 import SettingsPage from './components/SettingsPage';
 import LoginPage from './components/LoginPage';
 import { User } from './types';
-import { MockBackend } from './services/mockBackend';
+import { SupabaseBackend as Backend } from './services/supabaseBackend';
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -19,6 +19,7 @@ const App: React.FC = () => {
   const [projects, setProjects] = useState<any[]>([]);
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Initial Data Load
   useEffect(() => {
@@ -29,13 +30,20 @@ const App: React.FC = () => {
 
   const refreshData = async () => {
     setLoading(true);
-    const [p, r] = await Promise.all([
-      MockBackend.getProjects(),
-      MockBackend.getRequests()
-    ]);
-    setProjects(p);
-    setRequests(r);
-    setLoading(false);
+    setError(null);
+    try {
+      const [p, r] = await Promise.all([
+        Backend.getProjects(),
+        Backend.getRequests()
+      ]);
+      setProjects(p);
+      setRequests(r);
+    } catch (e: any) {
+      console.error('Data load failed', e);
+      setError(e?.message || 'Failed to load workspace. Check console/network.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogin = (user: User) => {
@@ -108,6 +116,11 @@ const App: React.FC = () => {
       onNavigate={handleNavigate}
       onLogout={handleLogout}
     >
+      {error && (
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
       {renderContent()}
     </Layout>
   );

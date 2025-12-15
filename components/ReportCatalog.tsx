@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Report } from '../types';
-import { MockBackend } from '../services/mockBackend';
+import { SupabaseBackend as Backend } from '../services/supabaseBackend';
 import { ExternalLink, Search } from 'lucide-react';
 
 const ReportCatalog: React.FC = () => {
@@ -8,7 +8,7 @@ const ReportCatalog: React.FC = () => {
   const [filter, setFilter] = useState('');
 
   useEffect(() => {
-    MockBackend.getReports().then(setReports);
+    Backend.getReports().then(setReports);
   }, []);
 
   const filtered = reports.filter(r => 

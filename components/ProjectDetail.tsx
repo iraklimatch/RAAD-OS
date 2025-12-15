@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Project, User, ProjectStatus, PlaybookResponse, P1Definition, P2Definition, P3Definition } from '../types';
-import { MockBackend } from '../services/mockBackend';
+import { SupabaseBackend as Backend } from '../services/supabaseBackend';
 import PlaybookChecklist from './PlaybookChecklist';
 import MattAIPanel from './MattAIPanel';
 import { ArrowLeft, Bot, Calendar, Users, BarChart2, Save, MoreHorizontal, FileText, CheckSquare, MessageSquare, ShieldCheck } from 'lucide-react';
@@ -21,7 +21,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ projectId, currentUser, o
 
   useEffect(() => {
     const fetch = async () => {
-      const p = await MockBackend.getProjectById(projectId);
+      const p = await Backend.getProjectById(projectId);
       setProject(p || null);
       setLoading(false);
     };
@@ -36,14 +36,14 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ projectId, currentUser, o
     };
     const updatedProject = { ...project, playbookResponses: updatedResponses };
     setProject(updatedProject);
-    await MockBackend.updateProject(updatedProject);
+    await Backend.updateProject(updatedProject);
   };
 
   const handleUpdatePhaseData = async (field: keyof Project, data: any) => {
     if (!project) return;
     const updatedProject = { ...project, [field]: data };
     setProject(updatedProject);
-    await MockBackend.updateProject(updatedProject);
+    await Backend.updateProject(updatedProject);
   };
 
   const canEdit = currentUser.role === 'RAAD_ANALYST' || currentUser.role === 'RAAD_MANAGER' || currentUser.role === 'ADMIN';

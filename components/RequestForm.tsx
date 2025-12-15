@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, Request } from '../types';
-import { MockBackend } from '../services/mockBackend';
+import { SupabaseBackend as Backend } from '../services/supabaseBackend';
 import { Send, Bot } from 'lucide-react';
 
 interface RequestFormProps {
@@ -22,7 +22,7 @@ const RequestForm: React.FC<RequestFormProps> = ({ user, onSubmitSuccess }) => {
     setIsSubmitting(true);
     
     const newReq: Request = {
-      id: `req_${Date.now()}`,
+      id: crypto.randomUUID(),
       requesterId: user.id,
       requesterName: user.name,
       department: formData.department!,
@@ -30,10 +30,10 @@ const RequestForm: React.FC<RequestFormProps> = ({ user, onSubmitSuccess }) => {
       coreQuestion: formData.coreQuestion!,
       goals: formData.goals!,
       status: 'New',
-      submittedAt: new Date().toISOString().split('T')[0]
+      submittedAt: new Date().toISOString()
     };
 
-    await MockBackend.createRequest(newReq);
+    await Backend.createRequest(newReq);
     setIsSubmitting(false);
     onSubmitSuccess();
   };
