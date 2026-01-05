@@ -10,6 +10,7 @@ import SettingsPage from './components/SettingsPage';
 import LoginPage from './components/LoginPage';
 import { User } from './types';
 import { SupabaseBackend as Backend } from './services/supabaseBackend';
+import { supabase, getUserFromSupabase } from './services/supabaseClient';
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -20,6 +21,44 @@ const App: React.FC = () => {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  // Check for existing Supabase session on mount
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.email) {
+          const user = await getUserFromSupabase(session.user.email);
+          if (user) {
+            setCurrentUser(user);
+          }
+        }
+      } catch (err) {
+        console.error('Error checking session:', err);
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
+
+    checkSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setCurrentUser(null);
+      } else if (event === 'SIGNED_IN' && session?.user?.email) {
+        const user = await getUserFromSupabase(session.user.email);
+        if (user) {
+          setCurrentUser(user);
+        }
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   // Initial Data Load
   useEffect(() => {
@@ -51,7 +90,8 @@ const App: React.FC = () => {
     setActiveTab('dashboard');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setCurrentUser(null);
     setSelectedProjectId(null);
     setActiveTab('dashboard');
@@ -105,6 +145,17 @@ const App: React.FC = () => {
   };
 
   // Auth Guard
+  if (checkingAuth) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-900">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-400 font-medium">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!currentUser) {
     return <LoginPage onLogin={handleLogin} />;
   }

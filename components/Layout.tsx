@@ -45,21 +45,42 @@ const Layout: React.FC<LayoutProps> = ({ children, user, activeTab, onNavigate, 
       >
         {/* Logo Area */}
         <div className="h-20 flex items-center justify-between px-5 border-b border-slate-800/50">
-          <div className={`flex items-center space-x-3 overflow-hidden transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0 w-0'}`}>
-             <div className="bg-gradient-to-br from-indigo-500 to-blue-600 p-2 rounded-lg shadow-lg shadow-indigo-500/30">
-               <Activity size={20} className="text-white" />
+          <div className={`flex items-center space-x-3 overflow-hidden transition-all duration-300 ${sidebarOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
+             <div className="relative flex-shrink-0">
+               <div className="absolute inset-0 bg-indigo-500/20 rounded-lg blur-md"></div>
+               <div className="relative bg-gradient-to-br from-white via-blue-50 to-indigo-100 rounded-lg p-2 shadow-lg border border-white/20">
+                 <img 
+                   src="/RAAD Logo.png" 
+                   alt="RAAD OS Logo" 
+                   className="w-10 h-10 object-contain transform hover:scale-110 transition-transform duration-300"
+                 />
+               </div>
              </div>
              <div>
                <h1 className="font-bold text-lg text-white tracking-tight leading-none">RAAD OS</h1>
                <span className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Analytics</span>
              </div>
           </div>
-          <button 
-            onClick={() => setSidebarOpen(!sidebarOpen)} 
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-          >
-            {sidebarOpen ? <Menu size={20} /> : <Menu size={24} className="mx-auto" />}
-          </button>
+          <div className={`flex items-center ${sidebarOpen ? 'space-x-2' : 'w-full justify-center'}`}>
+            {!sidebarOpen && (
+              <div className="relative">
+                <div className="absolute inset-0 bg-indigo-500/20 rounded-lg blur-md"></div>
+                <div className="relative bg-gradient-to-br from-white via-blue-50 to-indigo-100 rounded-lg p-1.5 shadow-lg border border-white/20">
+                  <img 
+                    src="/RAAD Logo.png" 
+                    alt="RAAD OS Logo" 
+                    className="w-8 h-8 object-contain"
+                  />
+                </div>
+              </div>
+            )}
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen)} 
+              className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              {sidebarOpen ? <Menu size={20} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
 
         {/* Navigation */}

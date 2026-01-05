@@ -158,3 +158,4 @@ Cursor has full Git integration:
 
 **Happy coding! 🚀**
 
+

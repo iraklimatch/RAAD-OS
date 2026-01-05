@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { USERS } from '../constants';
 import { User } from '../types';
 import { Lock, ArrowRight, Activity, ShieldCheck, Users, LineChart } from 'lucide-react';
+import { supabase, getUserFromSupabase } from '../services/supabaseClient';
 
 interface LoginPageProps {
   onLogin: (user: User) => void;
@@ -10,7 +11,61 @@ interface LoginPageProps {
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSupabaseLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      // Sign in with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: email.toLowerCase(),
+        password: password,
+      });
+
+      if (authError) {
+        setError(authError.message || 'Invalid email or password');
+        setLoading(false);
+        return;
+      }
+
+      if (!authData.user) {
+        setError('Login failed. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      // Fetch user details from users table (will auto-create if missing)
+      const user = await getUserFromSupabase(email.toLowerCase());
+      
+      if (!user) {
+        // Last resort: create user from auth data
+        const fallbackUser: User = {
+          id: authData.user.id,
+          name: authData.user.user_metadata?.full_name || authData.user.user_metadata?.name || email.split('@')[0],
+          email: email.toLowerCase(),
+          role: 'RAAD_ANALYST',
+          avatarUrl: authData.user.user_metadata?.avatar_url,
+        };
+        
+        console.warn('Using fallback user from auth metadata');
+        onLogin(fallbackUser);
+        setLoading(false);
+        return;
+      }
+
+      onLogin(user);
+      setLoading(false);
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.message || 'An error occurred during login');
+      setLoading(false);
+    }
+  };
 
   const handleManualLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,11 +90,18 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         
         {/* Left Side: Brand & Visuals */}
         <div className="hidden lg:flex flex-col justify-center p-8 lg:p-12 text-white">
-          <div className="mb-6 inline-flex items-center space-x-3">
-             <div className="bg-gradient-to-br from-indigo-500 to-blue-600 p-2.5 rounded-xl shadow-lg shadow-indigo-500/30">
-               <Activity size={32} className="text-white" />
+          <div className="mb-6 inline-flex items-center space-x-4">
+             <div className="relative">
+               <div className="absolute inset-0 bg-indigo-500/30 rounded-2xl blur-xl animate-pulse"></div>
+               <div className="relative bg-gradient-to-br from-white via-blue-50 to-indigo-100 rounded-2xl p-4 shadow-2xl border border-white/20 backdrop-blur-sm">
+                 <img 
+                   src="/RAAD Logo.png" 
+                   alt="RAAD OS Logo" 
+                   className="w-28 h-28 object-contain transform hover:scale-110 transition-transform duration-300"
+                 />
+               </div>
              </div>
-             <h1 className="text-3xl font-bold tracking-tight">RAAD OS</h1>
+             <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">RAAD OS</h1>
           </div>
           <h2 className="text-4xl font-extrabold mb-6 leading-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-indigo-100">
             The Operating System for Analytics.
@@ -70,11 +132,21 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         <div className="flex flex-col justify-center">
           <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-8 lg:p-10 border border-white/20">
             <div className="text-center mb-8">
+              <div className="flex justify-center mb-4">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-indigo-500/20 rounded-xl blur-lg animate-pulse"></div>
+                  <img 
+                    src="/RAAD Logo.png" 
+                    alt="RAAD OS Logo" 
+                    className="relative w-20 h-20 object-contain mx-auto transform hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+              </div>
               <h3 className="text-2xl font-bold text-slate-900">Sign In</h3>
               <p className="text-slate-500 mt-2">Access your workspace</p>
             </div>
 
-            <form onSubmit={handleManualLogin} className="space-y-4 mb-8">
+            <form onSubmit={handleSupabaseLogin} className="space-y-4 mb-8">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Email Address</label>
                 <div className="relative">
@@ -84,16 +156,33 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                     onChange={(e) => { setEmail(e.target.value); setError(''); }}
                     className="w-full pl-4 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
                     placeholder="name@dps.k12.org"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+                <div className="relative">
+                  <input 
+                    type="password" 
+                    value={password}
+                    onChange={(e) => { setPassword(e.target.value); setError(''); }}
+                    className="w-full pl-4 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                    placeholder="Enter your password"
+                    required
+                    disabled={loading}
                   />
                 </div>
               </div>
               {error && <p className="text-red-500 text-sm">{error}</p>}
               <button 
                 type="submit" 
-                className="w-full bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition-all flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                disabled={loading}
+                className="w-full bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition-all flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 <Lock size={18} />
-                <span>Secure Login</span>
+                <span>{loading ? 'Signing in...' : 'Secure Login'}</span>
               </button>
             </form>
 

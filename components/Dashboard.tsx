@@ -12,6 +12,16 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ user, projects, requests, onNavigate }) => {
+  // Get current date and quarter
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1; // 1-12
+  const currentQuarter = Math.ceil(currentMonth / 3); // Q1, Q2, Q3, Q4
+  const formattedDate = currentDate.toLocaleDateString('en-US', { 
+    month: 'long', 
+    day: 'numeric', 
+    year: 'numeric' 
+  });
+
   // --- Data Prep ---
   const statusCounts = projects.reduce((acc, p) => {
     acc[p.status] = (acc[p.status] || 0) + 1;
@@ -57,9 +67,19 @@ const Dashboard: React.FC<DashboardProps> = ({ user, projects, requests, onNavig
 
     return (
       <div className="space-y-8 animate-in fade-in duration-500">
-        <header className="mb-8">
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Welcome, {user.name}</h1>
-          <p className="text-slate-500 mt-2 text-lg">Analytics overview for <span className="font-semibold text-indigo-600">{user.department}</span>.</p>
+        <header className="mb-8 flex items-start gap-4">
+          <div className="relative flex-shrink-0">
+            <div className="absolute inset-0 bg-indigo-500/20 rounded-xl blur-lg animate-pulse"></div>
+            <img 
+              src="/RAAD Logo.png" 
+              alt="RAAD OS Logo" 
+              className="relative w-16 h-16 object-contain drop-shadow-lg transform hover:scale-110 transition-transform duration-300"
+            />
+          </div>
+          <div>
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Welcome, {user.name}</h1>
+            <p className="text-slate-500 mt-2 text-lg">Analytics overview for <span className="font-semibold text-indigo-600">{user.department}</span>.</p>
+          </div>
         </header>
 
         {/* Customer Action Items */}
@@ -155,19 +175,30 @@ const Dashboard: React.FC<DashboardProps> = ({ user, projects, requests, onNavig
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
-            {user.role === 'RAAD_MANAGER' ? 'Command Center' : 'My Workspace'}
-          </h1>
-          <p className="text-slate-500 mt-2 text-lg">
-            {user.role === 'RAAD_MANAGER' 
-              ? 'Operational oversight and team performance.' 
-              : `You have ${myProjects.length} active projects assigned.`}
-          </p>
+        <div className="flex items-start gap-4">
+          <div className="relative flex-shrink-0">
+            <div className="absolute inset-0 bg-indigo-500/20 rounded-xl blur-lg animate-pulse"></div>
+            <img 
+              src="/RAAD Logo.png" 
+              alt="RAAD OS Logo" 
+              className="relative w-16 h-16 object-contain drop-shadow-lg transform hover:scale-110 transition-transform duration-300"
+            />
+          </div>
+          <div>
+            <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
+              {user.role === 'RAAD_MANAGER' ? 'Command Center' : 'My Workspace'}
+            </h1>
+            <p className="text-slate-500 mt-2 text-lg">
+              {user.role === 'RAAD_MANAGER' 
+                ? 'Operational oversight and team performance.' 
+                : `You have ${myProjects.length} active projects assigned.`}
+            </p>
+          </div>
         </div>
-        <div className="text-right bg-white px-5 py-3 rounded-xl border border-slate-200 shadow-sm">
-           <p className="text-xs text-slate-400 uppercase tracking-widest font-bold">Current Cycle</p>
-           <p className="text-xl font-bold text-indigo-600">Spring 2024</p>
+        <div className="text-right bg-gradient-to-br from-indigo-50 to-blue-50 px-6 py-4 rounded-xl border border-indigo-200 shadow-sm">
+           <p className="text-xs text-indigo-600 uppercase tracking-widest font-bold mb-1">Current Cycle</p>
+           <p className="text-2xl font-extrabold text-indigo-700 mb-1">Q{currentQuarter}</p>
+           <p className="text-xs text-slate-500 font-medium">{formattedDate}</p>
         </div>
       </header>
 
