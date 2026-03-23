@@ -1,6 +1,3 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
 
 # RAAD Operations OS
 
@@ -36,10 +33,7 @@ A role-based project management and analytics operating system for Denver Public
    ```env
    VITE_SUPABASE_URL=your_supabase_url_here
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
-   GEMINI_API_KEY=your_gemini_key_here
    ```
-   
-   **Note:** The Gemini API key is optional - the app will work without it, but Matt AI features won't be available.
 
 4. **Run the development server:**
    ```bash
@@ -114,7 +108,6 @@ RAAD-OS/
 |----------|----------|-------------|
 | `VITE_SUPABASE_URL` | Yes | Your Supabase project URL |
 | `VITE_SUPABASE_ANON_KEY` | Yes | Your Supabase anonymous key |
-| `GEMINI_API_KEY` | No | Google Gemini API key for Matt AI |
 
 ## 📝 Current Features
 
@@ -123,7 +116,7 @@ RAAD-OS/
 - ✅ Dashboard with KPIs and status tracking
 - ✅ Request intake system
 - ✅ Report catalog
-- ✅ Matt AI copilot (requires Gemini API key)
+- ✅ Matt AI copilot
 - ✅ Settings and user management UI
 
 ## 🚧 Next Steps for Full Production
