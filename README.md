@@ -89,28 +89,6 @@ Deploy to Vercel, Netlify, or Cloudflare Pages for access from anywhere:
 6. Add environment variables
 7. Deploy!
 
-## 🛠️ Using Cursor IDE
-
-Yes! You can manage this project entirely from Cursor:
-
-1. **Open in Cursor:**
-   - File → Open Folder → Select the `RAAD-OS` directory
-   - Or use `cursor .` from the terminal
-
-2. **Git Integration in Cursor:**
-   - Use the Source Control panel (Ctrl+Shift+G / Cmd+Shift+G)
-   - Stage, commit, and push directly from Cursor
-   - View diffs and history
-
-3. **Terminal in Cursor:**
-   - Open integrated terminal (Ctrl+` / Cmd+`)
-   - Run `npm run dev` to start the server
-   - All git commands work here too
-
-4. **AI Assistant:**
-   - Use Cursor's AI chat (Cmd+L / Ctrl+L) for code help
-   - Ask questions about the codebase
-   - Get suggestions for improvements
 
 ## 📁 Project Structure
 
